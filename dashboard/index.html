@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Launch Radar — pre-token protocols ranked by expected value</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <svg class="rings" viewBox="0 0 48 48" aria-hidden="true">
+      <circle cx="24" cy="24" r="21" fill="none" stroke-width="1.5"/>
+      <circle cx="24" cy="24" r="13.5" fill="none" stroke-width="1.5"/>
+      <circle cx="24" cy="24" r="6" fill="none" stroke-width="1.5"/>
+      <line x1="24" y1="24" x2="41" y2="9" stroke-width="2"/>
+      <circle cx="33.5" cy="15.5" r="2.6" class="blip"/>
+    </svg>
+    <div>
+      <h1>LAUNCH RADAR</h1>
+      <p class="tagline">Every protocol that records no token yet, priced by a curve fitted on the ones that already launched, ranked by expected value — value if it launches × the odds it launches — each with a costed farm plan.</p>
+    </div>
+  </div>
+  <div class="topmeta">
+    <span id="asof" class="chip"></span>
+    <span id="checkchip" class="chip chip-accent">re-running the model in your browser…</span>
+    <span class="chip chip-warn">Implied value is this page's own claim, not a forecast, not advice</span>
+  </div>
+</header>
+
+<section id="kpis" class="kpis"></section>
+
+<section class="panel accounting">
+  <div class="acct-head"><span id="acct-title"></span><span id="acct-note" class="muted"></span></div>
+  <div id="acct-bar" class="acct-bar"></div>
+  <div id="acct-legend" class="acct-legend"></div>
+</section>
+
+<nav class="controls">
+  <div class="tabs" id="viewtabs">
+    <button data-view="board" class="on">Board</button>
+    <button data-view="watchlist">Watchlist wall</button>
+    <button data-view="portfolio">Portfolio</button>
+    <button data-view="method">Method &amp; tests</button>
+  </div>
+  <div class="tabs" id="segtabs">
+    <button data-seg="all" class="on">All</button>
+    <button data-seg="watchlist">Watchlist</button>
+    <button data-seg="offlist">Off list</button>
+    <button data-seg="below">Below floor</button>
+  </div>
+  <label>Verdict <select id="f-verdict"><option value="">Any</option><option>FARM</option><option>THIN</option><option>SKIP</option><option value="ROBUST">Robust FARM</option></select></label>
+  <label>Ticket <select id="f-ticket"><option>500</option><option selected>1000</option><option>2500</option><option>5000</option><option>10000</option><option>25000</option></select></label>
+  <label>Drop share <select id="f-share"><option value="0.05">5%</option><option value="0.1" selected>10%</option><option value="0.2">20%</option></select></label>
+  <label>T-bill <select id="f-tbill"><option value="0">0%</option><option value="0.04" selected>4%</option><option value="0.08">8%</option></select></label>
+  <label>Category <select id="f-cat"><option value="">All</option></select></label>
+  <label>Chain <select id="f-chain"><option value="">All</option></select></label>
+  <label>Sort <select id="f-sort"><option value="rank">Expected value</option><option value="nethour">Net / hour</option><option value="value">Value if launched</option><option value="odds">Launch odds</option><option value="tvl">TVL</option></select></label>
+  <input id="f-search" type="search" placeholder="Search protocols…  ( / )">
+</nav>
+
+<main>
+  <div class="boardlayout">
+    <section id="view-board">
+      <section id="farmnext" class="farmnext"></section>
+      <section id="pfstrip" class="farmnext pfstrip"></section>
+      <div class="tablewrap"><table id="board">
+        <thead><tr>
+          <th>#</th><th>Protocol</th><th>TVL</th><th>7d</th><th>No token for</th><th>Mult</th><th>Launch odds</th>
+          <th>Value if launched</th><th>Expected value · P25–P75</th><th>Slice</th><th>Net of all costs</th><th>Verdict</th><th>Plan</th>
+        </tr></thead>
+        <tbody id="board-body"></tbody>
+      </table></div>
+      <p id="board-count" class="muted small"></p>
+    </section>
+    <aside id="rail">
+      <div class="panel" id="modelbox"></div>
+      <div class="panel" id="oosbox"></div>
+      <div class="panel">
+        <h3>Market cap vs TVL — the comps and the curve</h3>
+        <svg id="scatter" viewBox="0 0 460 196" role="img" aria-label="scatter of traded tokens and the fitted size curve"></svg>
+        <p class="muted small" id="scatter-note"></p>
+      </div>
+    </aside>
+  </div>
+
+  <section id="view-watchlist" hidden>
+    <h3>The watchlist wall — all 40 protocols the house named, each with its verdict and plan</h3>
+    <div id="wall" class="wall"></div>
+  </section>
+
+  <section id="view-portfolio" hidden>
+    <h3>Portfolio builder — a budget and a week in, a filled plan list out</h3>
+    <div class="pf-controls">
+      <label>Total capital $ <input id="pf-capital" type="number" value="10000" min="0" step="500"></label>
+      <label>Hours per week <input id="pf-hours" type="number" value="5" min="0" step="0.5"></label>
+      <label><input id="pf-safer" type="checkbox"> Exclude FALLING / NEW plans</label>
+      <button id="pf-build">Build portfolio</button>
+    </div>
+    <div id="pf-out"></div>
+  </section>
+
+  <section id="view-method" hidden>
+    <div id="method-body"></div>
+  </section>
+</main>
+
+<div id="detail" hidden></div>
+
+<footer>
+  <p>“Records no token” is DefiLlama's record, not proof that none exists. Gas, drop share and T-bill yield are stated assumptions; every other number is fitted from the snapshot. Keys: <kbd>j</kbd>/<kbd>k</kbd> move · <kbd>Enter</kbd> opens · <kbd>/</kbd> searches · <kbd>Esc</kbd> closes.</p>
+</footer>
+
+<script src="../data.js"></script>
+<script src="model.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
